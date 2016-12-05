@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZombieMaze.CSharp.Plugins", "ZombieMaze.CSharp.Plugins.csproj", "{9A8564C1-A0F9-394D-C859-FF2524D17F17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZombieMaze.CSharp", "ZombieMaze.CSharp.csproj", "{862EC6E0-CDE2-7847-C5D7-829C6300C859}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZombieMaze.CSharp.Editor", "ZombieMaze.CSharp.Editor.csproj", "{8691934A-44CF-DB4C-0EB9-5C6882926423}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A8564C1-A0F9-394D-C859-FF2524D17F17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A8564C1-A0F9-394D-C859-FF2524D17F17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A8564C1-A0F9-394D-C859-FF2524D17F17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A8564C1-A0F9-394D-C859-FF2524D17F17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{862EC6E0-CDE2-7847-C5D7-829C6300C859}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{862EC6E0-CDE2-7847-C5D7-829C6300C859}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{862EC6E0-CDE2-7847-C5D7-829C6300C859}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{862EC6E0-CDE2-7847-C5D7-829C6300C859}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8691934A-44CF-DB4C-0EB9-5C6882926423}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8691934A-44CF-DB4C-0EB9-5C6882926423}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8691934A-44CF-DB4C-0EB9-5C6882926423}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8691934A-44CF-DB4C-0EB9-5C6882926423}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
