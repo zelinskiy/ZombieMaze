@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 public class MazeController : MonoBehaviour {
 
@@ -9,16 +10,64 @@ public class MazeController : MonoBehaviour {
 
     public GameObject[,] Rooms;
 
-    public GameManager GameManager;
+
+    public List<RoomController> RoomsControllers;
+
+    public GameManagerController GameManager;
     public GameObject RoomPrefab;
     
 
-	void Start ()
+	void Awake ()
     {
         BuildMaze();
         InterconnectMaze();
         SetupMazeDFS();
+    }
 
+    void BuildMaze()
+    {
+        Rooms = new GameObject[Height, Width];
+        for (var i = 0; i < Height; i++)
+        {
+            for (var j = 0; j < Width; j++)
+            {
+                var rot = transform.rotation;
+                var pos = transform.position;
+                pos.x += 2.7f * j;
+                pos.y += 2.7f * i;
+                var newRoom = (GameObject)Instantiate(RoomPrefab, pos, rot);
+                newRoom.transform.parent = transform;
+                Rooms[i, j] = newRoom;
+                var rcontroller = newRoom.GetComponent<RoomController>();
+                RoomsControllers.Add(rcontroller);
+                rcontroller.Id = i * Width + j;
+                foreach (var w in rcontroller.Walls)
+                {
+                    w.SetActive(true);
+                }
+
+                if (i == Height - 1)
+                {
+                    rcontroller.TopWall.SetActive(true);
+                }
+                else if (i == 0)
+                {
+                    rcontroller.BottomWall.SetActive(true);
+                }
+
+                if (j == Width - 1)
+                {
+                    rcontroller.RightWall.SetActive(true);
+                }
+                else if (j == 0)
+                {
+                    rcontroller.LeftWall.SetActive(true);
+                }
+            }
+        }
+
+
+        Rooms[0, 0].GetComponent<RoomController>().LeftWall.SetActive(false);
     }
 
     void InterconnectMaze()
@@ -94,52 +143,7 @@ public class MazeController : MonoBehaviour {
         }
 
     }
-
-    void BuildMaze()
-    {
-        Rooms = new GameObject[Height, Width];
-        for (var i = 0; i < Height; i++)
-        {
-            for (var j = 0; j < Width; j++)
-            {
-                var rot = transform.rotation;
-                var pos = transform.position;
-                pos.x += 2.7f * j;
-                pos.y += 2.7f * i;
-                var newRoom = (GameObject)Instantiate(RoomPrefab, pos, rot);
-                newRoom.transform.parent = transform;
-                Rooms[i, j] = newRoom;
-                var rcontroller = newRoom.GetComponent<RoomController>();
-                rcontroller.Id = i * (Height - 1) + j;
-                foreach (var w in rcontroller.Walls)
-                {
-                    w.SetActive(true);
-                }
-
-                if (i == Height - 1)
-                {
-                    rcontroller.TopWall.SetActive(true);
-                }
-                else if (i == 0)
-                {
-                    rcontroller.BottomWall.SetActive(true);
-                }
-
-                if (j == Width - 1)
-                {
-                    rcontroller.RightWall.SetActive(true);
-                }
-                else if (j == 0)
-                {
-                    rcontroller.LeftWall.SetActive(true);
-                }
-            }
-        }
-
-
-        Rooms[0, 0].GetComponent<RoomController>().LeftWall.SetActive(false);
-    }
-	
+       
     void SetupMazeDFS()
     {
         var backtrack = new Stack();
@@ -168,7 +172,6 @@ public class MazeController : MonoBehaviour {
             if(nextRoom == null)
             {
                 currentRoom = backtrack.Pop() as RoomController;
-                print("Id " + currentRoom.Id);
                 continue;
             }
             else
@@ -178,14 +181,61 @@ public class MazeController : MonoBehaviour {
                 currentRoom = nextRoom;
             }
             currentRoom.VisitedDFS = true;
-            print(backtrack.Count);
             
         }
-        
+
     }
     
+    public IEnumerable<RoomController> FindShortestPath(RoomController Room1, RoomController Room2)
+    {
+        var Q = new List<RoomController>();
+        var INF = 100000000;
+        foreach (var r in RoomsControllers)
+        {
+            r.DijkstraDistance = INF;
+            r.DijkstraPrev = null;
+            Q.Add(r);
+        }
+        Room1.DijkstraDistance = 0;
+        while(Q.Count != 0)
+        {
+            Q = Q.OrderBy(r => r.DijkstraDistance).ToList();
+            var u = Q.First();
+            Q.RemoveAt(0);
 
-	void Update () {
+            foreach (var v in u.ReachableNeighbourRooms
+                .Select(nr => nr.GetComponent<RoomController>()))
+            {
+
+                var alt = u.DijkstraDistance + 1;
+                if(alt < v.DijkstraDistance)
+                {
+                    v.DijkstraDistance = alt;
+                    v.DijkstraPrev = u;
+                }
+            }
+        }
+
+        foreach(var r in RoomsControllers)
+        {
+            r.Indicated = false;
+        }
+
+        var res = new List<RoomController>();
+        var prev = Room2.DijkstraPrev;
+        while(prev != null)
+        {
+            res.Add(prev);
+            prev.Indicated = true;
+            prev = prev.DijkstraPrev;
+        }
+
+        return res;
+
+    }
+
+	void Update ()
+    {
 	
 	}
 

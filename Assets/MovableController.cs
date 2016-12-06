@@ -8,7 +8,11 @@ using System.Collections;
 public class MovableController : MonoBehaviour {
 
     public float RoomSize = 2.7f;
+    public Vector3 TargetPosition;
+    public float Speed = 5f;
+
     private bool _isRunning;
+
     public bool IsRunning
     {
         get
@@ -21,8 +25,7 @@ public class MovableController : MonoBehaviour {
             GetComponent<Animator>().SetBool("IsRunning", value);
         }
     }
-    public Vector3 TargetPosition;
-    public float Speed = 5f;
+    
     
     
 

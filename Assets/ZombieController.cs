@@ -1,16 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 public class ZombieController : MovableController
 {
-    private RoomController CurrentRoomController;
+    public RoomController CurrentRoomController;
+    public static readonly float ZombieBaseSpeed = 2f;
+    public List<GameObject> RoomsPath;
 
+    public bool IsMovingRandomly;
     
-    void Start () {
-        TargetPosition = transform.position + new Vector3(RoomSize, 0);
-        IsRunning = true;
-        Speed = 0.5f;
+    void Awake ()
+    {
+        Speed = ZombieBaseSpeed;
+        IsMovingRandomly = true;
     }
     
 
@@ -27,19 +31,29 @@ public class ZombieController : MovableController
             return;
         }
 
-        var x = CurrentRoomController.NeighbourRooms
-            .OrderBy(nr => Random.value)
-            .FirstOrDefault();
-        if(x == CurrentRoomController.RightRoom)
+        print(CurrentRoomController.ReachableNeighbourRooms.Count);
+        var nextRoom = CurrentRoomController.ReachableNeighbourRooms
+                .OrderBy(nr => Random.value)
+                .FirstOrDefault();
+        if (!IsMovingRandomly && RoomsPath.Count > 0)
+        {
+            nextRoom = RoomsPath[0];
+            RoomsPath.RemoveAt(0);
+        }
+        
+        if(nextRoom == CurrentRoomController.RightRoom)
         {
             GetComponent<SpriteRenderer>().flipX = true;
         }
-        else if (x == CurrentRoomController.LeftRoom)
+        else if (nextRoom == CurrentRoomController.LeftRoom)
         {
             GetComponent<SpriteRenderer>().flipX = false;
         }
 
-        MoveTo(new Vector3(x.transform.position.x, x.transform.position.y, transform.position.z));
+        MoveTo(new Vector3(
+            nextRoom.transform.position.x,
+            nextRoom.transform.position.y, 
+            transform.position.z));
     }
 
     void OnTriggerEnter2D(Collider2D other)

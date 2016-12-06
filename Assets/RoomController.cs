@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
 public class RoomController : MonoBehaviour {
+
+    public GameObject Indicator;
 
     public GameObject TopWall;
     public GameObject BottomWall;
@@ -16,10 +19,33 @@ public class RoomController : MonoBehaviour {
 
     public GameObject[] Walls;
     public GameObject[] NeighbourRooms;
+    public List<GameObject> ReachableNeighbourRooms;
+
+    public int DijkstraDistance;
+    public RoomController DijkstraPrev;
+
+    
 
     public bool VisitedDFS;
+    
+    public bool HasCoin;
 
     public int Id;
+
+    private bool _indicated;
+    public bool Indicated
+    {
+        get
+        {
+            return _indicated;
+        }
+        set
+        {
+            Indicator.SetActive(value);
+            _indicated = value;
+
+        }
+    }
 
     void Awake()
     {
@@ -40,13 +66,32 @@ public class RoomController : MonoBehaviour {
     public void SetNeighbourRooms()
     {
         NeighbourRooms = new GameObject[]
-       {
+        {
             TopRoom,
             RightRoom,
             BottomRoom,
             LeftRoom
-       };
-       NeighbourRooms = NeighbourRooms.Where(nr => nr != null).ToArray();
+        };
+        NeighbourRooms = NeighbourRooms.Where(nr => nr != null).ToArray();
+
+        ReachableNeighbourRooms = new List<GameObject>();
+        if (TopRoom != null && !TopWall.activeSelf)
+        {
+            ReachableNeighbourRooms.Add(TopRoom);
+        }
+        if (BottomRoom != null && !BottomWall.activeSelf)
+        {
+            ReachableNeighbourRooms.Add(BottomRoom);
+        }
+        if (LeftRoom != null && !LeftWall.activeSelf)
+        {
+            ReachableNeighbourRooms.Add(LeftRoom);
+        }
+        if (RightRoom != null && !RightWall.activeSelf)
+        {
+            ReachableNeighbourRooms.Add(RightRoom);
+        }
+        
     }
 
     public void MakePassToNeighbour(RoomController neighbour)

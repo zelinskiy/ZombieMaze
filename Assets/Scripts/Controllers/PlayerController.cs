@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class PlayerController : MovableController {
     
-    public int Coins = 0; 
-    private RoomController CurrentRoomController;
+    
+    public RoomController CurrentRoomController;
 
-    public GameManager GameManager;
+    public GameManagerController GameManager;
+    
 
     // Use this for initialization
     void Start ()
@@ -25,15 +27,22 @@ public class PlayerController : MovableController {
     void OnTriggerEnter2D(Collider2D other)
     {
         var tag = other.gameObject.tag;
-        if (tag == "Room")
+
+        switch (tag)
         {
-            CurrentRoomController = other.gameObject.GetComponent<RoomController>();
-            print(CurrentRoomController.CountNeighbours());
+            case "Room":
+                CurrentRoomController = other.gameObject.GetComponent<RoomController>();                
+                break;
+            case "Zombie":
+                print("GAME OVER!");
+                break;
+            case "Coin":
+                GameManager.AddCoin();
+                CurrentRoomController.HasCoin = false;
+                Destroy(other.gameObject);
+                break;
         }
-        if (tag == "Zombie")
-        {
-            print("GAME OVER!");
-        }
+        
     }
 
     void HandleInput()
