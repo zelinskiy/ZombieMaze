@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public class MazeController : MonoBehaviour {
 
@@ -8,12 +9,15 @@ public class MazeController : MonoBehaviour {
 
     public GameObject[,] Rooms;
 
+    public GameManager GameManager;
     public GameObject RoomPrefab;
     
+
 	void Start ()
     {
         BuildMaze();
         InterconnectMaze();
+        SetupMazeDFS();
 
     }
 
@@ -83,6 +87,12 @@ public class MazeController : MonoBehaviour {
 
         bottomLeftRoom.RightRoom = Rooms[0, 1];
         bottomLeftRoom.TopRoom = Rooms[1, 0];
+
+        foreach(var r in Rooms)
+        {
+            r.GetComponent<RoomController>().SetNeighbourRooms();
+        }
+
     }
 
     void BuildMaze()
@@ -100,9 +110,10 @@ public class MazeController : MonoBehaviour {
                 newRoom.transform.parent = transform;
                 Rooms[i, j] = newRoom;
                 var rcontroller = newRoom.GetComponent<RoomController>();
+                rcontroller.Id = i * (Height - 1) + j;
                 foreach (var w in rcontroller.Walls)
                 {
-                    w.SetActive(false);
+                    w.SetActive(true);
                 }
 
                 if (i == Height - 1)
@@ -129,6 +140,51 @@ public class MazeController : MonoBehaviour {
         Rooms[0, 0].GetComponent<RoomController>().LeftWall.SetActive(false);
     }
 	
+    void SetupMazeDFS()
+    {
+        var backtrack = new Stack();
+        
+        var currentRoom = Rooms[0, 0].GetComponent<RoomController>();
+        var beginRoom = currentRoom;
+        var nextRoom = currentRoom.NeighbourRooms
+                .Select(r => r.GetComponent<RoomController>())
+                .OrderBy(nr => Random.value)
+                .Where(rc => !rc.VisitedDFS)
+                .FirstOrDefault();
+        currentRoom.MakePassToNeighbour(nextRoom);
+        currentRoom.VisitedDFS = true;
+        backtrack.Push(currentRoom);
+        currentRoom = nextRoom;
+
+        while (currentRoom.Id != beginRoom.Id)
+        {
+
+            nextRoom = currentRoom.NeighbourRooms
+                .Select(r => r.GetComponent<RoomController>())
+                .OrderBy(nr => Random.value)
+                .Where(rc => !rc.VisitedDFS)
+                .FirstOrDefault();
+            
+            if(nextRoom == null)
+            {
+                currentRoom = backtrack.Pop() as RoomController;
+                print("Id " + currentRoom.Id);
+                continue;
+            }
+            else
+            {
+                currentRoom.MakePassToNeighbour(nextRoom);                
+                backtrack.Push(currentRoom);
+                currentRoom = nextRoom;
+            }
+            currentRoom.VisitedDFS = true;
+            print(backtrack.Count);
+            
+        }
+        
+    }
+    
+
 	void Update () {
 	
 	}

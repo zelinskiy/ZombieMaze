@@ -4,8 +4,9 @@ using System.Collections;
 public class PlayerController : MovableController {
     
     public int Coins = 0; 
-    private RoomController CurrentRoomController;      
-    
+    private RoomController CurrentRoomController;
+
+    public GameManager GameManager;
 
     // Use this for initialization
     void Start ()
