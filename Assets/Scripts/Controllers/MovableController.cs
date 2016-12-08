@@ -6,12 +6,17 @@ using System.Collections;
 /// Usage: Add Move() to Update()
 /// </summary>
 public class MovableController : MonoBehaviour {
-        
-    public Vector3 TargetPosition { get; set; }
+
+    private Vector3 _targetPosition;
+    public Vector3 TargetPosition
+    {
+        get
+        {
+            return _targetPosition;
+        }
+    }
     public float Speed = 5f;
-
-    public const float RoomSize = 2.7f;
-
+    
     private bool _isRunning;
     public bool IsRunning
     {
@@ -28,19 +33,29 @@ public class MovableController : MonoBehaviour {
     
     
     
-
+    /// <summary>
+    /// Translates TargetPosition on specified delta
+    /// </summary>
+    /// <param name="delta">DIrection and value of translation</param>
     public void MoveAt(Vector3 delta)
     {
-        TargetPosition = transform.position + delta;
+        _targetPosition = transform.position + delta;
         IsRunning = true;
     }
 
+    /// <summary>
+    /// Sets TargetPosition
+    /// </summary>
+    /// <param name="position"></param>
     public void MoveTo(Vector3 position)
     {
-        TargetPosition = position;
+        _targetPosition = position;
         IsRunning = true;
     }
 
+    /// <summary>
+    /// Must be executed each frame
+    /// </summary>
     public void Move()
     {
         if (TargetPosition == transform.position)

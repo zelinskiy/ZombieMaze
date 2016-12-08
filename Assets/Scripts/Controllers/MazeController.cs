@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 public class MazeController : MonoBehaviour {
 
+    public const float RoomSize = 2.7f;
+
     /// <summary>
     /// Maze Width W >>
     /// </summary>
@@ -26,8 +28,10 @@ public class MazeController : MonoBehaviour {
     public GameManagerController GameManager;
 
     /// <summary>
-    /// Builds grid of RoomPrefabe of size Width x Height
+    /// Builds grid of RoomPrefabs
     /// </summary>
+    /// <param name="width">Maze Width</param>
+    /// <param name="height">Maze Height</param>
     public void BuildMaze(int width, int height)
     {
 
@@ -35,14 +39,8 @@ public class MazeController : MonoBehaviour {
         {
             throw new System.Exception("Maze size is too small, minimum size allowed is 2x2");
         }
-
-        else
-        {
-            Width = width;
-            Height = height;
-        }
-
-        
+        Width = width;
+        Height = height;       
 
         Rooms = new GameObject[Height, Width];
         for (var i = 0; i < Height; i++)
@@ -51,41 +49,26 @@ public class MazeController : MonoBehaviour {
             {
                 var rot = transform.rotation;
                 var pos = transform.position;
+                
+                //translate to correct position in rooms grid
                 pos.x += 2.7f * j;
                 pos.y += 2.7f * i;
+
                 var newRoom = (GameObject)Instantiate(RoomPrefab, pos, rot);
                 newRoom.transform.parent = transform;
                 Rooms[i, j] = newRoom;
                 var rcontroller = newRoom.GetComponent<RoomController>();
                 RoomsControllers.Add(rcontroller);
                 rcontroller.Id = i * Width + j;
-                foreach (var w in rcontroller.Walls)
-                {
-                    w.SetActive(true);
-                }
-
-                if (i == Height - 1)
-                {
-                    rcontroller.TopWall.SetActive(true);
-                }
-                else if (i == 0)
-                {
-                    rcontroller.BottomWall.SetActive(true);
-                }
-
-                if (j == Width - 1)
-                {
-                    rcontroller.RightWall.SetActive(true);
-                }
-                else if (j == 0)
-                {
-                    rcontroller.LeftWall.SetActive(true);
-                }
+                
+                
             }
         }
+    }
 
-
-        Rooms[0, 0].GetComponent<RoomController>().LeftWall.SetActive(false);
+    public void SetMazeEntranceOpened(bool value)
+    {
+        Rooms[0, 0].GetComponent<RoomController>().LeftWall.SetActive(!value);
     }
 
     /// <summary>
@@ -189,7 +172,6 @@ public class MazeController : MonoBehaviour {
     public RoomController GetRandomRoom(IEnumerable<RoomController> rooms)
     {
         return rooms
-            .Select(r => r.GetComponent<RoomController>())
             .OrderBy(nr => Random.value)
             .FirstOrDefault();
     }
@@ -209,11 +191,15 @@ public class MazeController : MonoBehaviour {
     /// <returns>Correctly ordered sequence of rooms</returns>
     public IEnumerable<RoomController> FindShortestPath(RoomController Room1, RoomController Room2)
     {
-        if(Room1 == null || Room2 == null)
+        if(Room1 == null)
         {
-            throw new System.NullReferenceException("Argument is Null");
+            throw new System.NullReferenceException("Source room is Null");
         }
-        if(Room1.Id == Room2.Id)
+        if (Room2 == null)
+        {
+            throw new System.NullReferenceException("Destination room is Null");
+        }
+        if (Room1.Id == Room2.Id)
         {
             return new List<RoomController>()
             {
@@ -239,7 +225,6 @@ public class MazeController : MonoBehaviour {
             foreach (var neighbour in room.ReachableNeighbourRooms
                 .Select(nr => nr.GetComponent<RoomController>()))
             {
-
                 var alt = room.DijkstraDistance + 1;
                 if(alt < neighbour.DijkstraDistance)
                 {
@@ -247,9 +232,7 @@ public class MazeController : MonoBehaviour {
                     neighbour.DijkstraPrev = room;
                 }
             }
-        }
-
-    
+        }   
 
         var res = new List<RoomController>();
         var prev = Room2;
@@ -260,7 +243,6 @@ public class MazeController : MonoBehaviour {
         }
         res.Reverse();
         return res;
-
     }
 
 

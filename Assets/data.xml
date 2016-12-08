@@ -189,4 +189,11 @@
     <GameOverReason>Mummy</GameOverReason>
     <GameBegin>2016-12-07T21:10:13.2848911+02:00</GameBegin>
   </SavedGame>
+  <SavedGame>
+    <UserName>Лол1</UserName>
+    <Coins>0</Coins>
+    <TimeInMazeSeconds>7</TimeInMazeSeconds>
+    <GameOverReason>Zombie</GameOverReason>
+    <GameBegin>2016-12-08T20:27:44.4195507+02:00</GameBegin>
+  </SavedGame>
 </ArrayOfSavedGame>

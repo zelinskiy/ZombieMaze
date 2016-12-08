@@ -5,42 +5,31 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 
 public class MainMenuController : MonoBehaviour {
-    
 
-    public Button ExitGameButton;
-    public Button NewGameButton;
-
-    public Button ShowTopScoresButton;
-    public Button HideTopScoresButton;
-
-    public InputField UserNameInput;
-
+    [Header("Basic UI Layer")]
+    public GameObject BasicInterfaceLayer;
     public Text UserNameText;
-
+    public InputField UserNameInput;
+    public Button NewGameButton;
+    public Button ShowTopScoresButton;
     public Slider MazeWidthSlider;
     public Slider MazeHeightSlider;
+    public Button ExitGameButton;
+    public InputField SimplicityInput;
 
-    public GameObject BasicInterfaceLayer;
-    public GameObject TopScoresLayer;
+    [Header("Top Scores UI Layer")]
+    public GameObject TopScoresLayer;    
+    public Button HideTopScoresButton;    
     public Text TopScoresText;
 
     void Start()
     {
+        LoadPlayerPrefs();
+        LoadButtonHandlers();
+    }
 
-        
-        if (PlayerPrefs.HasKey("UserName"))
-        {
-            UserNameText.text = "Hello, " + PlayerPrefs.GetString("UserName");
-        }
-        if (PlayerPrefs.HasKey("MazeHeight"))
-        {
-            MazeHeightSlider.value = PlayerPrefs.GetInt("MazeHeight");
-        }
-        if (PlayerPrefs.HasKey("MazeWidth"))
-        {
-            MazeHeightSlider.value = PlayerPrefs.GetInt("MazeWidth");
-        }
-        
+    void LoadButtonHandlers()
+    {
         NewGameButton.onClick.AddListener(() =>
         {
             SceneManager.LoadScene("MainScene");
@@ -75,11 +64,42 @@ public class MainMenuController : MonoBehaviour {
             PlayerPrefs.SetInt("MazeWidth", Mathf.FloorToInt(value));
         });
     }
+    
+
+    /// <summary>
+    /// Loads values from PlayerPrefs into UI or sets them to default
+    /// </summary>
+    void LoadPlayerPrefs()
+    {
+        if (!PlayerPrefs.HasKey("UserName"))
+        {
+            PlayerPrefs.SetString("UserName", "UserName");
+        }
+        UserNameText.text = "Hello, " + PlayerPrefs.GetString("UserName");
+
+        if (!PlayerPrefs.HasKey("MazeHeight"))
+        {
+            PlayerPrefs.SetInt("MazeHeight", 5);
+        }
+        MazeHeightSlider.value = PlayerPrefs.GetInt("MazeHeight");
+
+        if (!PlayerPrefs.HasKey("MazeWidth"))
+        {
+            PlayerPrefs.SetInt("MazeWidth", 10);            
+        }
+        MazeWidthSlider.value = PlayerPrefs.GetInt("MazeWidth");
+
+        if (!PlayerPrefs.HasKey("Simplicity"))
+        {
+            PlayerPrefs.SetInt("Simplicity", 10);
+        }
+        SimplicityInput.text = PlayerPrefs.GetInt("Simplicity").ToString();
+    }
 
     void LoadTopScores()
     {
         var savedGames = SavesManager.LoadGames().OrderByDescending(g => g.GameBegin).ToList();
-        TopScoresText.text = "UserName  Coins Time    Reason    Date\n" + new string('=', 53) + "\n";
+        TopScoresText.text = fixedString("UserName  Coins Time    Reason    Date", 53) + "\n" + new string('=', 53) + "\n";
         TopScoresText.text += string.Join("\n", savedGames
             .Select(game =>
                 fixedString(game.UserName, 10)
@@ -90,15 +110,21 @@ public class MainMenuController : MonoBehaviour {
                 + "\n").ToArray());
         TopScoresText.text += new string('=', 53);
         TopScoresText.text += new string('\n', 5);
-
-
+        
     }
 
-    string fixedString(string input, int length)
+
+    /// <summary>
+    /// Extends or crops string to fixed size
+    /// </summary>
+    /// <param name="input">Input string</param>
+    /// <param name="length">Desirable length</param>
+    /// <returns></returns>
+    static string fixedString(string input, int length)
     {
-        if(input.Length > length)
+        if(input.Length >= length)
         {
-            throw new System.ArgumentException("Input is too long");
+            return string.Concat(input.Take(length));
         }
         return input + new string(' ', length - input.Length);
     }

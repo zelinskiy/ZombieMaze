@@ -5,7 +5,21 @@ using System.Collections.Generic;
 
 public class RoomController : MonoBehaviour {
 
+    /// <summary>
+    /// Used for debugging Dijkstra pathfinding 
+    /// </summary>
     public GameObject Indicator;
+
+    /// <summary>
+    /// If there is a coin in this room
+    /// </summary>
+    public bool HasCoin;
+
+    /// <summary>
+    /// Unique within Maze object
+    /// </summary>
+    public int Id;
+
 
     public GameObject TopWall;
     public GameObject BottomWall;
@@ -18,21 +32,28 @@ public class RoomController : MonoBehaviour {
     public GameObject RightRoom;
 
     public GameObject[] Walls;
+
+    /// <summary>
+    /// All rooms near this one
+    /// </summary>
     public GameObject[] NeighbourRooms;
+
+    /// <summary>
+    /// Rooms which player can reach through passes
+    /// </summary>
     public List<GameObject> ReachableNeighbourRooms;
 
     public int DijkstraDistance;
-    public RoomController DijkstraPrev;
-
-    
-
+    public RoomController DijkstraPrev;  
     public bool VisitedDFS;
     
-    public bool HasCoin;
-
-    public int Id;
+    
 
     private bool _indicated;
+
+    /// <summary>
+    /// Used for debugging Dijkstra pathfinding 
+    /// </summary>
     public bool Indicated
     {
         get
@@ -74,6 +95,11 @@ public class RoomController : MonoBehaviour {
         };
         NeighbourRooms = NeighbourRooms.Where(nr => nr != null).ToArray();
 
+        SetReachableRooms();
+    }
+
+    void SetReachableRooms()
+    {
         ReachableNeighbourRooms = new List<GameObject>();
         if (TopRoom != null && !TopWall.activeSelf)
         {
@@ -91,7 +117,6 @@ public class RoomController : MonoBehaviour {
         {
             ReachableNeighbourRooms.Add(RightRoom);
         }
-        
     }
 
     public void MakePassToNeighbour(RoomController neighbour)
@@ -122,13 +147,9 @@ public class RoomController : MonoBehaviour {
         }
         else
         {
-            throw new System.Exception("Incorrect neighbour passed");
+            throw new System.ArgumentException("Incorrect neighbour passed");
         }
     }
 
-
-    public int CountNeighbours()
-    {
-        return NeighbourRooms.Count(nr => nr != null);
-    }
+    
 }

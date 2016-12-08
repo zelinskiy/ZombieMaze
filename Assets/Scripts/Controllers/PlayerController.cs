@@ -9,24 +9,33 @@ public class PlayerController : MovableController {
     public RoomController CurrentRoomController { get; set; }
 
     public bool UserInputActive;
-
-    // Use this for initialization
+    
     void Start ()
     {
+        if (GameManager == null)
+        {
+            throw new System.ArgumentNullException("Game Manager is null (maybe it is not injected properly?)");
+        }
+
         Speed = 4f;
-        StartCoroutine(WalkInsideMaze());
+        StartCoroutine(WalkInsideMaze());        
     }
 
+    /// <summary>
+    /// Executed when game starts
+    /// </summary>
+    /// <returns></returns>
     IEnumerator WalkInsideMaze()
     {
         UserInputActive = false;
-        MoveAt(new Vector3(RoomSize, 0));
+        GameManager.Maze.SetMazeEntranceOpened(true);
+        MoveAt(new Vector3(MazeController.RoomSize, 0));
         yield return new WaitForSeconds(1);
-        CurrentRoomController.LeftWall.SetActive(true);
+        GameManager.Maze.SetMazeEntranceOpened(false);
         UserInputActive = true;
     }
 	
-	// Update is called once per frame
+
 	void Update ()
     {
         Move();
@@ -77,38 +86,51 @@ public class PlayerController : MovableController {
 
     void HandleInput()
     {
-        if (!UserInputActive)
+        if (Input.GetAxis("Mouse ScrollWheel") > 0)
+        {
+            if (Camera.main.orthographicSize > 1)
+            {
+                Camera.main.orthographicSize -= 0.25f;
+            }
+
+        }
+        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
+        {
+            if (Camera.main.orthographicSize < 100)
+            {
+                Camera.main.orthographicSize += 0.25f;
+            }
+        }
+
+        if (!UserInputActive || IsRunning == true)
         {
             return;
         }
-        if(IsRunning == true)
+
+        if (Input.GetKey(KeyCode.W) && !CurrentRoomController.TopWall.activeSelf)
         {
-            return;
-        }
-        if (Input.GetKeyDown(KeyCode.W) && !CurrentRoomController.TopWall.activeSelf)
-        {
-            MoveAt(new Vector3(0, RoomSize));            
+            MoveAt(new Vector3(0, MazeController.RoomSize));            
         }
         else if (Input.GetKey(KeyCode.S) && !CurrentRoomController.BottomWall.activeSelf)
         {
-            MoveAt(new Vector3(0, -RoomSize));
+            MoveAt(new Vector3(0, -MazeController.RoomSize));
         }
         else if (Input.GetKey(KeyCode.A) && !CurrentRoomController.LeftWall.activeSelf)
         {
-            MoveAt(new Vector3(-RoomSize, 0));
+            MoveAt(new Vector3(-MazeController.RoomSize, 0));
             GetComponent<SpriteRenderer>().flipX = true;
         }
-        else if (Input.GetKeyDown(KeyCode.D) && !CurrentRoomController.RightWall.activeSelf)
+        else if (Input.GetKey(KeyCode.D) && !CurrentRoomController.RightWall.activeSelf)
         {
-            MoveAt(new Vector3(RoomSize, 0));
+            MoveAt(new Vector3(MazeController.RoomSize, 0));
             GetComponent<SpriteRenderer>().flipX = false;
         }
         else if (Input.GetKeyDown(KeyCode.Escape))
         {
             GameOver("Escape");
-
         }
         
-        
+
+
     }
 }
