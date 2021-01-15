@@ -35,7 +35,7 @@ public class MazeController : MonoBehaviour {
     public void BuildMaze(int width, int height)
     {
 
-        if(width < 2 || width < 2)
+        if(width < 2 || height < 2)
         {
             throw new System.Exception("Maze size is too small, minimum size allowed is 2x2");
         }
